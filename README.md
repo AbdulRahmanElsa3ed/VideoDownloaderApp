@@ -23,7 +23,18 @@ A simple and fast program to download videos from multiple websites and platform
 
 ![image1](README_Docs/image.png)
 
+## FFmpeg Requirement
 
+This program relies on `ffmpeg.exe` to handle video and audio processing.  
+
+**Important:**  
+- Make sure that `ffmpeg.exe` is located in the **same folder as `main.py`**.  
+- The latest release already includes `ffmpeg.exe`, so you **don't need to download it separately**.
+
+**How to download FFmpeg.exe**  
+1. Go to the official FFmpeg builds: [FFmpeg Link](https://github.com/BtbN/FFmpeg-Builds/releases)  
+2. Download the latest version of **ffmpeg-master-latest-win64-gpl.zip**.  
+3. Get `ffmpeg.exe` from "ffmpeg-master-latest-win64-gpl/bin/ffmpeg.exe" and place it in the same folder as `main.py`.  
 
 ## Requirements
 
@@ -32,6 +43,7 @@ A simple and fast program to download videos from multiple websites and platform
 ```bash
 pip install customtkinter pillow pyperclip yt-dlp
 ```
+
 
 
 
