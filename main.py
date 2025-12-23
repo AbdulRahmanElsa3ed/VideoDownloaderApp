@@ -233,7 +233,7 @@ quality_combobox = CTkComboBox(app, 150, 40, 10,  1, fg_color="#343638", font=("
 quality_combobox.place(x=296, y=60)
 quality_combobox.set("Quality")
 
-img = CTkImage(Image.open("images/savemark.png"), size=(20,20))
+img = CTkImage(Image.open("_images/savemark.png"), size=(20,20))
 savepath_btn = CTkButton(app, 150, 40, 10, 1, font=("Ariel", 20), fg_color="#343638", hover_color="#494949", text="Save Path", image=img, compound="right", command=lambda: savepath())
 savepath_btn.place(x=450, y=60)
 
@@ -241,7 +241,7 @@ progressbar = CTkProgressBar(app, 786, 10, fg_color="#494949", progress_color="#
 progressbar.place(x=10, y=110)
 progressbar.set(0)
 
-img = CTkImage(Image.open("images/download.png"), size=(30,30))
+img = CTkImage(Image.open("_images/download.png"), size=(30,30))
 download_btn = CTkButton(app, 120, 40, 10, font=("Ariel", 30), text="Download", image=img, fg_color="#000000", text_color="#FFFFFF", hover_color="#1F6AA5", compound="right", command=lambda: download_thread())
 download_btn.place(x=604, y=60)
 
@@ -256,5 +256,6 @@ textbox.tag_config("lightYellow", foreground="#EEFF00")
 textbox.tag_config("black", foreground="#000000")
 textbox.tag_config("blue", foreground="#1a9fff")
 textbox.configure(state="disabled")
+
 
 app.mainloop()
