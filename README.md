@@ -18,12 +18,13 @@ A simple and fast program to download videos from multiple websites and platform
 - Python 3.8 or higher  
 - Libraries:
 ```bash
-
 pip install customtkinter pillow pyperclip yt-dlp
+```
 
 ## Downloads / Releases
 
 You can download the latest version of the app from the official GitHub releases:
 
 - [VideoDownloaderApp_V1.0.0.rar](https://github.com/AbdulRahmanElsa3ed/VideoDownloaderApp/releases/tag/v1.0.0) – Initial Version
+
 
