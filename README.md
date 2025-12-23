@@ -15,7 +15,7 @@ A simple and fast program to download videos from multiple websites and platform
 
 ## Instructions
 
-Enter Video URL
+Enter Video URL\n
 ![image1](README_Docs/image1.png)
 
 ## Requirements
@@ -25,6 +25,7 @@ Enter Video URL
 ```bash
 pip install customtkinter pillow pyperclip yt-dlp
 ```
+
 
 
 
