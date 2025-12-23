@@ -16,12 +16,15 @@ A simple and fast program to download videos from multiple websites and platform
 ## Instructions
 
 1) Enter Video URL.
+2) Select Download Mode.
+3) Select Quality.
+4) Enter Save Path.
+5) Press Download.
 
 ![image1](README_Docs/image1.png)
 
-2) Select Download Mode.
 
-![image1](README_Docs/image2.png)
+
 
 ## Requirements
 
@@ -30,6 +33,7 @@ A simple and fast program to download videos from multiple websites and platform
 ```bash
 pip install customtkinter pillow pyperclip yt-dlp
 ```
+
 
 
 
