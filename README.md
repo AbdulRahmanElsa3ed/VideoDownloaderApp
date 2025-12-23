@@ -4,7 +4,7 @@ A simple and fast program to download videos from multiple websites and platform
 
 ## Features
 
-- Download videos in different qualities (144p, 360p, 720p, 1080p, etc.).  
+- Download videos in different qualities (Low, SD, HD, FHD).  
 - Supports downloading:  
   - Full video  
   - Audio only  
@@ -18,4 +18,5 @@ A simple and fast program to download videos from multiple websites and platform
 - Python 3.8 or higher  
 - Libraries:
 ```bash
+
 pip install customtkinter pillow pyperclip yt-dlp
