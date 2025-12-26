@@ -9,7 +9,6 @@
   - Muted video  
 - Ability to choose the save location on your device.  
 - Uses [yt_dlp](https://github.com/yt-dlp/yt-dlp), which allows downloading from multiple platforms and websites.
-- Automatic re-encoding to improve file compatibility when sharing files across platforms.
 - Built with a user-friendly interface using **CustomTkinter**.
 
 ## FFmpeg Requirement
@@ -43,6 +42,7 @@ This program relies on `ffmpeg.exe` to handle video and audio processing.
 ```bash
 pip install customtkinter pillow pyperclip yt-dlp
 ```
+
 
 
 
