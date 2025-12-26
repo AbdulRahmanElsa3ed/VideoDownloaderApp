@@ -4,24 +4,25 @@ from PIL import Image
 from tkinter import filedialog
 import pyperclip, threading, yt_dlp, shutil
 
+def app_path():
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
+
 app = CTk()
 app.title("Video Downloader")
 app.geometry("806x500")
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
-app.iconbitmap("_images/icon.ico")
+img_path = os.path.join(app_path(), "_images", "icon.ico")
+app.iconbitmap(img_path)
 app.resizable(False, False)
 can_download = True
-
-if shutil.which("ffmpeg") is None:
-    print("FFmpeg not found! Please download it and put it in the same folder as this script.")
-    sys.exit(1)
-
-def app_path():
-    if getattr(sys, 'frozen', False):
-        return os.path.dirname(sys.executable)
-    return os.path.dirname(os.path.abspath(__file__))
-path = f"{app_path()}/downloads"
+path = app_path().replace("\\", "/")
+p1 = path.split(":")[0]
+p2 = path.split(":")[1]
+path = p1.upper() +':'+ p2 +'/downloads'
+level = 0
 
 def write_log(message, color):
     textbox.configure(state="normal")
@@ -59,7 +60,7 @@ def mode_changed(value):
 
 def video():
     move(quality_combobox, 263, 60, 40, 8)
-    move(savepath_btn, 407, 60, 40, 8)
+    move(savepath_btn, 407, 60, 40, 8, callback=mute_switch.place(x=156, y=60))
 
 def Audio():
     move(quality_combobox, 156, 60, 40, 8)
@@ -71,7 +72,8 @@ def savepath():
     dir.replace("\\", "/")
     if dir != '':
         path = dir
-        write_log(f"SavePath set : {path}\n", 'white')
+        write_log(f"SavePath set : ", 'white')
+        write_log(f"{path}\n", "blue")
 
 def quality_colorization(quality):
     if quality == "Low":
@@ -107,13 +109,22 @@ def download_video(URL: str = None, Quality: int = 360, SavePath: str = ''):
                       bestvideo[height<{Qualityt}][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]""",
         "outtmpl": f"{SavePath}/%(title).50sV{Quality}.%(ext)s",
         "ffmpeg_location": "ffmpeg.exe",
-        'progress_hooks': [progress_hook]
+        'progress_hooks': [progress_hook],
+        "postprocessor_args": [
+            "-c:v", "libx264",
+            "-profile:v", "baseline",
+            "-level", "3.0",
+            "-pix_fmt", "yuv420p",
+            "-c:a", "aac",
+            "-b:a", "128k"
+        ]
     }
 
     try:
         with yt_dlp.YoutubeDL(options) as ydl:
-            ydl.download(URL)
-    except:
+            ydl.download([URL])
+    except Exception as e:
+        print(e)
         return "Error"
 
 
@@ -124,12 +135,20 @@ def download_audio(URL: str = None, SavePath: str = ''):
         "format": f"bestaudio[ext=m4a]",
         "outtmpl": f"{SavePath}/%(title).50sA.%(ext)s",
         "ffmpeg_location": "ffmpeg.exe",
-        'progress_hooks': [progress_hook]
+        'progress_hooks': [progress_hook],
+        "postprocessor_args": [
+            "-c:v", "libx264",
+            "-profile:v", "baseline",
+            "-level", "3.0",
+            "-pix_fmt", "yuv420p",
+            "-c:a", "aac",
+            "-b:a", "128k"
+        ]
     }
 
     try:
         with yt_dlp.YoutubeDL(options) as ydl:
-            ydl.download(URL)
+            ydl.download([URL])
     except:
         return "Error"
     
@@ -150,22 +169,36 @@ def download_muted_video(URL: str = None, Quality: int = 360, SavePath: str = ''
                       bestvideo[height<{Qualityt}][ext=mp4]""",
         "outtmpl": f"{SavePath}/%(title).50sMV{Quality}.%(ext)s",
         "ffmpeg_location": "ffmpeg.exe",
-        'progress_hooks': [progress_hook]
+        'progress_hooks': [progress_hook],
+        "postprocessor_args": [
+            "-c:v", "libx264",
+            "-profile:v", "baseline",
+            "-level", "3.0",
+            "-pix_fmt", "yuv420p",
+            "-c:a", "aac",
+            "-b:a", "128k"
+        ]
     }
 
     try:
         with yt_dlp.YoutubeDL(options) as ydl:
-            ydl.download(URL)
+            ydl.download([URL])
     except:
         return "Error"
 
 def progress_hook(d):
+    global level
     if d['status'] == 'downloading':
         total = d.get('total_bytes') or d.get('total_bytes_estimate')
         downloaded = d.get('downloaded_bytes', 0)
         if total:
             percent = downloaded / total
             progressbar.set(percent)
+            if percent == 1.0:
+                level += 1
+        if level == 2:
+            write_log("    Processing...\n", "yellow")
+            level = 0
 
 def download():
     url = url_entry.get()
@@ -193,13 +226,13 @@ def download():
         return
 
     write_downloadinfo(mode, url, quality)
-    write_log("    Downloading...\n", "white")
+    write_log("    Downloading...\n", "yellow")
     if mode == "Video":
         returned = download_video(url, quality, path)
         if returned == "Error":
             write_log("    An error occurred during download.\n", "red")
         elif progressbar.get() == 0.0:
-            write_log(f"    This video has already been downloaded\n", "yellow")
+            write_log(f"    This video has already been downloaded\n", "orange")
         else:
             write_log(f"    {mode} downloaded Successfuly\n", "green")
     elif mode == "Audio":
@@ -207,7 +240,7 @@ def download():
         if returned == "Error":
             write_log("    An error occurred during download.\n", "red")
         elif progressbar.get() == 0.0:
-            write_log(f"    This audio has already been downloaded\n", "yellow")
+            write_log(f"    This audio has already been downloaded\n", "orange")
         else:
             write_log(f"    {mode} downloaded Successfuly\n", "green")
     elif mode == "Muted Video":
@@ -215,7 +248,7 @@ def download():
         if returned == "Error":
             write_log("    An error occurred during download.\n", "red")
         elif progressbar.get() == 0.0:
-            write_log(f"    This muted video has already been downloaded\n", "yellow")
+            write_log(f"    This muted video has already been downloaded\n", "orange")
         else:
             write_log(f"    {mode} downloaded Successfuly\n", "green")
     can_download = True
@@ -227,7 +260,7 @@ def download_thread():
 url_entry = ctk.CTkEntry(app, 786, 40, 10, 1, font=("Ariel", 20), placeholder_text="Enter URL")
 url_entry.place(x=10, y=10)
 
-img_path = os.path.join(app_path(), "_images/paste.png")
+img_path = os.path.join(app_path(), "_images","paste.png")
 img = CTkImage(Image.open(img_path), size=(25,25))
 paste_btn = CTkButton(app, width=1, height=1, text="", corner_radius=7, image=img, font=("Ariel", 20), fg_color="#343638", hover_color="#343638", bg_color="#343638", command=lambda: paste())
 paste_btn.place(x=760, y=14)
@@ -242,7 +275,8 @@ quality_combobox = CTkComboBox(app, 140, 40, 10,  1, fg_color="#343638", font=("
 quality_combobox.place(x=156, y=60)
 quality_combobox.set("Quality")
 
-img = CTkImage(Image.open("_images/savemark.png"), size=(20,20))
+img_path = os.path.join(app_path(), "_images","savemark.png")
+img = CTkImage(Image.open(img_path), size=(20,20))
 savepath_btn = CTkButton(app, 140, 40, 10, 1, font=("Ariel", 20), fg_color="#343638", hover_color="#494949", text="Save Path", image=img, compound="right", command=lambda: savepath())
 savepath_btn.place(x=300, y=60)
 
@@ -250,7 +284,8 @@ progressbar = CTkProgressBar(app, 786, 10, fg_color="#494949", progress_color="#
 progressbar.place(x=10, y=110)
 progressbar.set(0)
 
-img = CTkImage(Image.open("_images/download.png"), size=(30,30))
+img_path = os.path.join(app_path(), "_images","download.png")
+img = CTkImage(Image.open(img_path), size=(30,30))
 download_btn = CTkButton(app, 120, 40, 10, font=("Ariel", 30), text="Download", image=img, text_color="#FFFFFF", compound="right", command=lambda: download_thread())
 download_btn.place(x=604, y=60)
 
@@ -266,5 +301,7 @@ textbox.tag_config("black", foreground="#000000")
 textbox.tag_config("blue", foreground="#1a9fff")
 textbox.configure(state="disabled")
 
-app.mainloop()
+write_log(f"Default SavePath is : ", "white")
+write_log(f"{path}\n", "blue")
 
+app.mainloop()
