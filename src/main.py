@@ -2,7 +2,7 @@ import customtkinter as ctk
 from customtkinter import *
 from PIL import Image
 from tkinter import filedialog
-import pyperclip, threading, yt_dlp, shutil
+import pyperclip, threading, yt_dlp
 
 def app_path():
     if getattr(sys, 'frozen', False):
@@ -22,6 +22,7 @@ path = app_path().replace("\\", "/")
 p1 = path.split(":")[0]
 p2 = path.split(":")[1]
 path = p1.upper() +':'+ p2 +'/downloads'
+mode = None
 level = 0
 
 def write_log(message, color):
@@ -119,7 +120,6 @@ def download_video(URL: str = None, Quality: int = 360, SavePath: str = ''):
             "-b:a", "128k"
         ]
     }
-
     try:
         with yt_dlp.YoutubeDL(options) as ydl:
             ydl.download([URL])
@@ -135,17 +135,8 @@ def download_audio(URL: str = None, SavePath: str = ''):
         "format": f"bestaudio[ext=m4a]",
         "outtmpl": f"{SavePath}/%(title).50sA.%(ext)s",
         "ffmpeg_location": "ffmpeg.exe",
-        'progress_hooks': [progress_hook],
-        "postprocessor_args": [
-            "-c:v", "libx264",
-            "-profile:v", "baseline",
-            "-level", "3.0",
-            "-pix_fmt", "yuv420p",
-            "-c:a", "aac",
-            "-b:a", "128k"
-        ]
+        'progress_hooks': [progress_hook]
     }
-
     try:
         with yt_dlp.YoutubeDL(options) as ydl:
             ydl.download([URL])
@@ -170,16 +161,26 @@ def download_muted_video(URL: str = None, Quality: int = 360, SavePath: str = ''
         "outtmpl": f"{SavePath}/%(title).50sMV{Quality}.%(ext)s",
         "ffmpeg_location": "ffmpeg.exe",
         'progress_hooks': [progress_hook],
+        "postprocessors": [
+            {
+                "key": "FFmpegVideoConvertor",
+                "preferedformat": "mkv"
+            },
+            {
+                "key": "FFmpegVideoConvertor",
+                "preferedformat": "mp4"
+            }
+        ],
+
         "postprocessor_args": [
+            "-map", "0:v:0",
+            "-an",
             "-c:v", "libx264",
             "-profile:v", "baseline",
             "-level", "3.0",
-            "-pix_fmt", "yuv420p",
-            "-c:a", "aac",
-            "-b:a", "128k"
+            "-pix_fmt", "yuv420p"
         ]
     }
-
     try:
         with yt_dlp.YoutubeDL(options) as ydl:
             ydl.download([URL])
@@ -188,6 +189,7 @@ def download_muted_video(URL: str = None, Quality: int = 360, SavePath: str = ''
 
 def progress_hook(d):
     global level
+    global mode
     if d['status'] == 'downloading':
         total = d.get('total_bytes') or d.get('total_bytes_estimate')
         downloaded = d.get('downloaded_bytes', 0)
@@ -196,18 +198,19 @@ def progress_hook(d):
             progressbar.set(percent)
             if percent == 1.0:
                 level += 1
-        if level == 2:
-            write_log("    Processing...\n", "yellow")
-            level = 0
+    if (level == 2):
+        write_log("    Processing...\n", "yellow")
+        level = 0
 
 def download():
+    global mode
+    global path
+    global can_download
     url = url_entry.get()
     quality = quality_combobox.get()
     mode = downloadmode.get()
     if mode == "Video" and mute_switch.get() == 1:
         mode = "Muted Video"
-    global path
-    global can_download
     can_download = False
     path = path.replace("\\", "/")
     progressbar.set(0)
